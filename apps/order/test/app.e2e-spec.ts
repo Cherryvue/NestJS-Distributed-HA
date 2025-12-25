@@ -1,15 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
-import { App } from 'supertest/types';
-import { AppModule } from './../src/app.module';
+import request from 'supertest';
+import { OrderModule } from './../src/order.module';
 
-describe('AppController (e2e)', () => {
-  let app: INestApplication<App>;
+describe('OrderController (e2e)', () => {
+  let app: INestApplication;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [OrderModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
@@ -17,6 +16,7 @@ describe('AppController (e2e)', () => {
   });
 
   it('/ (GET)', () => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     return request(app.getHttpServer())
       .get('/')
       .expect(200)

@@ -1,0 +1,18 @@
+{
+  "entryPoints": [
+    "apps/auth/src",
+    "apps/customer/src",
+    "apps/inventory/src",
+    "apps/order/src",
+    "apps/payment/src"
+  ],
+  "entryPointStrategy": "expand",
+  "tsconfig": "tsconfig.json",
+  "out": "./docs/typedoc",
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "exclude": [
+    "**/*.spec.ts",
+    "**/main.ts"
+  ]
+}

@@ -1,0 +1,12 @@
+node_modules
+dist
+.volumes
+.env
+compose.yml
+build.sh
+Dockerfile
+build.sh
+/yml/*.yml
+prod-compose.yml
+.husky
+/vault

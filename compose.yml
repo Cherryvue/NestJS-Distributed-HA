@@ -1,0 +1,90 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=cherrynodes_core_db
+      - POSTGRES_PASSWORD=cherrynodes_core_db
+      - POSTGRES_DB=cherrynodes_core_db
+    ports:
+      - 5432:5432
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 600M
+        reservations:
+          cpus: "0.5"
+          memory: 500M
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "pg_isready",
+          "-U",
+          "cherrynodes_core_db",
+          "-d",
+          "cherrynodes_core_db",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - .volumes/db/:/var/lib/postgresql/data
+
+  supertokens-db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=postgres_supertokens
+      - POSTGRES_PASSWORD=postgres_supertokens
+      - POSTGRES_DB=supertokens
+    restart: always
+    networks:
+      - supertokens-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 600M
+        reservations:
+          cpus: "0.5"
+          memory: 500M
+    healthcheck:
+      test:
+        ["CMD", "pg_isready", "-U", "postgres_supertokens", "-d", "supertokens"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - .volumes/supertokens_db/:/var/lib/postgresql/data
+
+  supertokens:
+    image: registry.supertokens.io/supertokens/supertokens-postgresql:10.0.0
+    depends_on:
+      supertokens-db:
+        condition: service_healthy
+    ports:
+      - 3567:3567
+    networks:
+      - supertokens-network
+    environment:
+      POSTGRESQL_CONNECTION_URI: "postgresql://postgres_supertokens:postgres_supertokens@supertokens-db:5432/supertokens"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 600M
+        reservations:
+          cpus: "0.5"
+          memory: 500M
+    healthcheck:
+      test: >
+        bash -c 'exec 3<>/dev/tcp/127.0.0.1/3567 && echo -e "GET /hello HTTP/1.1\r\nhost: 127.0.0.1:3567\r\nConnection: close\r\n\r\n" >&3 && cat <&3 | grep "Hello"'
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  supertokens-network:
+    driver: bridge
